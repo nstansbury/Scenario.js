@@ -10,7 +10,7 @@ GIVEN.Reporter = new GIVEN.HTMLReporter();
 
 GIVEN("A Car").
 	AND("an ignition key").
-	AND("there is fuel in in the car").
+	AND("there is fuel in the car").
 		WHEN("the key is turned in the ignition").
 			THEN("the engine starts").
 			AND("it makes a Vroom Vroom noise").
