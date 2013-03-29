@@ -3,7 +3,7 @@ Given.js
 
 A natural language BDD testing framework for JavaScript:
 
-
+```javascript
 GIVEN.Reporter = new GIVEN.HTMLReporter();
 
 GIVEN("A Car").
@@ -13,3 +13,4 @@ GIVEN("A Car").
 			THEN("the engine starts").
 			AND("it makes a Vroom Vroom noise").
 			END();
+```
