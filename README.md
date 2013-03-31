@@ -78,3 +78,55 @@ GIVEN.Criteria = {
 }
 
 ```
+
+You can return any value or object in an assertion as long as it evaluates to "truthy". Though try to resist the tempation to return multiple objects in an assertion for the sake of it. It makes for more expressive & reusable tests to chain multiple GIVENS (or WHENs/THENs):
+
+```javascript
+// Avoid this:
+
+GIVEN("Two things").THEN("Thing A should equal thing B").END();
+
+GIVEN.Criteria = {
+	"Two things" : function(){
+		return {
+			thingA : {
+				name : "thingA"
+			},
+			thingB : {
+				name : "thingB"
+			}
+		}
+	},
+	
+	"Thing A should equal thing B" : function(){
+		return this.Given("Two things").thingA == this.Given("Two things").thingB;
+	}
+}
+
+// Opt for this instead
+
+GIVEN("ThingA").AND("ThingB").THEN("Thing A should equal thing B").END();
+
+GIVEN.Criteria = {
+	"ThingA" : function(){
+		var thingA = {
+			name : "thingA"
+		}
+		return thingA;
+	},
+	"ThingB" : function(){
+		var thingB = {
+			name : "thingB"
+		}
+		return thingB;
+	},
+	"Thing A should equal thing B" : function(){
+		return this.Given("thingA") == this.Given("thingB");
+	}
+}
+
+
+
+
+
+```
