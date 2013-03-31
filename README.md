@@ -1,7 +1,11 @@
 Given.js
 ========
 
-A natural language BDD testing framework for JavaScript.
+A natural language BDD testing framework for JavaScript:
+
+```javascript
+GIVEN("criteria").WHEN("criteria").THEN("criteria").AND("criteria").END(timeout);
+```
 
 It is designed so that the BDD scenarios can be written directly by BAs or developers in a natural language syntax that can be directly executed in any JavaScript environment.
 
@@ -10,7 +14,7 @@ The BDD scenarios can be defined and executed separately from the individual sce
 Each criteria is executed as a self-contained assertion, allowing developers to reuse the criteria across multiple scenarios.
 
 Any combination of GIVENs, WHENs, THENs & ANDs can be chanined together, which are automatically executed asynchronously if 'false' is returned from the assertion.
-The state and values of previous assertions can be accessed throughout the scenario chain using a 'Given/When/Then/If(criteria)' syntax. 
+The state and values of previous assertions can be accessed throughout the scenario chain using a 'Given/When/Then/If(criteria)' syntax. END() takes an optional test timeout value in m/s.
 
 
 ```javascript

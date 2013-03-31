@@ -47,7 +47,7 @@ GIVEN("a web page").
 END();
 
 
-GIVEN.title = "Check an playing event occurs when an HTML5 video is played";
+
 GIVEN.Criteria = {
 	"an HTML5 Video" : function(){
 		var scenario = this;
@@ -80,11 +80,14 @@ GIVEN.Criteria = {
 	}
 }
 
+
+GIVEN.title = "Check a playing and a play event occurs when an HTML5 video is played";
+
 GIVEN("an HTML5 Video").
 	WHEN("play() is called").
 		THEN("a play event is raised").
 			AND("a playing event is raised").
-END(2000);
+END(2000);	// Optional timeout for the test
 
 
 
