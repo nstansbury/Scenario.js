@@ -84,17 +84,13 @@ You can return any value or object in an assertion as long as it evaluates to "t
 ```javascript
 // Avoid this:
 
-GIVEN("Two things").THEN("Thing A should equal thing B").END();
+GIVEN("Two things").THEN("ThingA should equal ThingB").END();
 
 GIVEN.Criteria = {
 	"Two things" : function(){
 		return {
-			thingA : {
-				name : "thingA"
-			},
-			thingB : {
-				name : "thingB"
-			}
+			thingA : new ThingA(),
+			thingB : new ThingB()
 		}
 	},
 	
@@ -105,20 +101,14 @@ GIVEN.Criteria = {
 
 // Opt for this instead
 
-GIVEN("ThingA").AND("ThingB").THEN("Thing A should equal thing B").END();
+GIVEN("ThingA").AND("ThingB").THEN("ThingA should equal ThingB").END();
 
 GIVEN.Criteria = {
 	"ThingA" : function(){
-		var thingA = {
-			name : "thingA"
-		}
-		return thingA;
+		return new ThingA();
 	},
 	"ThingB" : function(){
-		var thingB = {
-			name : "thingB"
-		}
-		return thingB;
+		return new ThingB();
 	},
 	"Thing A should equal thing B" : function(){
 		return this.Given("thingA") == this.Given("thingB");
