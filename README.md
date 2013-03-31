@@ -124,9 +124,4 @@ GIVEN.Criteria = {
 		return this.Given("thingA") == this.Given("thingB");
 	}
 }
-
-
-
-
-
 ```
