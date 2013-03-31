@@ -111,7 +111,7 @@ GIVEN.Criteria = {
 		return new ThingB();
 	},
 	"Thing A should equal thing B" : function(){
-		return this.Given("thingA") == this.Given("thingB");
+		return this.Given("ThingA") == this.Given("ThingB");
 	}
 }
 ```
