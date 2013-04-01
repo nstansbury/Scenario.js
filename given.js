@@ -12,7 +12,7 @@ function GIVEN(name){
 }
 
 /** @type Number */
-GIVEN.defaultTimeout = 1000;
+GIVEN.defaultTimeout = 500;
 
 GIVEN.version = 0.1;
 
