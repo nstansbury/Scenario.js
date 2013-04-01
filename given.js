@@ -140,8 +140,14 @@ GIVEN.Scenario.prototype = {
 	/** @param {String} name */
 	/** @returns {Boolean} */
 	/** @description A naughty piece of sweet syntactic sugar */
-	If : function Then(name){
+	If : function If(name){
 		return Boolean(this.getAssertion(name).result);
+	},
+	
+	/** @param {String} name */
+	/** @returns {Object} */
+	The : function The(name){
+		return this.getAssertion(name).result;
 	},
 	
 	/** @param {String} criteria */
