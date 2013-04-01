@@ -250,7 +250,8 @@ GIVEN.Reporter = {
 	/** @param {GIVEN.Scenario} scenario */
 	write : function(scenario){
 		var stringBuilder = [];
-		var g = "GIVEN", w = "WHEN", t = "THEN", statement = "";
+		var result = true;
+		var g = "GIVEN", w = "\n\t\tWHEN", t = "\n\t\t\tTHEN", statement = "";
 		
 		var assertions = scenario.getAssertions();
 		while(assertions.hasMore()){
@@ -258,22 +259,23 @@ GIVEN.Reporter = {
 			switch(assertion.type){
 				case GIVEN.AssertionType.Given:
 					statement = g;
-					g = "AND";
+					g = "\n\tAND";
 					break;
 				case GIVEN.AssertionType.When:
 					statement = w;
-					w = "AND";
+					w = "\n\t\t\tAND";
 					break;
 				case GIVEN.AssertionType.Then:
 					statement = t;
-					t = "AND";
+					t = "\n\t\t\t\tAND";
 					break;
 			}
 			stringBuilder.push(statement);
 			stringBuilder.push(assertion.name);
-			stringBuilder.push(Boolean(assertion.result) ? "TRUE" : "FALSE");
+			result = (result == false) ? false : assertion.result;
 		}
 		console.log(scenario.title);
+		stringBuilder.push(result ? "\nPASSED" : "\nFAILED");
 		console.log("\t" +stringBuilder.join(" "));
 	}
 }
