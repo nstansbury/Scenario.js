@@ -23,6 +23,14 @@ GIVEN.title = "";
 GIVEN.Scenario = function Scenario(criteriaSet){
 	this.__assertions = [];
 	this.__names = {};
+	try {
+		if(Object.keys(criteriaSet).length == 0){
+			throw null;
+		}
+	}
+	catch(e){
+		throw "No criteria found for Scenario :: " +GIVEN.title;
+	}
 	this.Criteria = criteriaSet;
 }
 GIVEN.Scenario.prototype = {
