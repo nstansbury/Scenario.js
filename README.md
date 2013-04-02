@@ -4,7 +4,7 @@ Given.js
 A natural language BDD testing framework for JavaScript:
 
 ```javascript
-GIVEN("criteria").WHEN("criteria").THEN("criteria").AND("criteria").END(timeout);
+SCENARIO("Description").GIVEN("criteria").WHEN("criteria").THEN("criteria").AND("criteria").END();
 ```
 
 It is designed so that the BDD scenarios can be written directly by BAs or developers in a natural language syntax that can be directly executed in any JavaScript environment.
@@ -14,29 +14,27 @@ The BDD scenarios can be defined and executed separately from the individual sce
 Each criteria is executed as a self-contained assertion, allowing developers to reuse the criteria across multiple scenarios.
 
 Any combination of GIVENs, WHENs, THENs & ANDs can be chanined together, which are automatically executed asynchronously if 'false' is returned from the assertion.
-The state and values of previous assertions can be accessed throughout the scenario chain using a 'Given/When/Then/If(criteria)' syntax. END() takes an optional test timeout value in m/s.
+The state and values of previous assertions can be accessed throughout the scenario chain using a 'Given/When/Then/If(criteria)' syntax. END() takes an optional test timeout argument in m/s.
 
 
 ```javascript
 // BDD Scenarios
 
-GIVEN.Reporter = new GIVEN.HTMLReporter();
+SCENARIO.Reporter = new SCENARIO.HTMLReporter();
 
 
-GIVEN.title = "Check a loaded event occurs when the page loads";
-
-GIVEN("a web page").
-	WHEN("it is loaded").
-		THEN("a document loaded event occurs").
+SCENARIO("Check a loaded event occurs when the page loads").
+	GIVEN("a web page").
+		WHEN("it is loaded").
+			THEN("a document loaded event occurs").
 END();
 
 
-GIVEN.title = "Check an unloaded event occurs when the page unloads";
-
-GIVEN("a web page").
-	AND("it is loaded").
-		WHEN("it is unloaded").
-			THEN("a document unloaded event occurs").
+SCENARIO("Check an unloaded event occurs when the page unloads").
+	GIVEN("a web page").
+		AND("it is loaded").
+			WHEN("it is unloaded").
+				THEN("a document unloaded event occurs").
 END();
 
 ```
@@ -45,7 +43,7 @@ END();
 ```javascript
 // Scenario Criteria
 
-GIVEN.Criteria = {
+SCENARIO.Criteria = {
 	"a web page" : function(){
 		return window.document;
 	},
@@ -84,9 +82,12 @@ You can return any value or object in an assertion as long as it evaluates to "t
 ```javascript
 // Avoid this:
 
-GIVEN("Two things").THEN("ThingA should equal ThingB").END();
+SCENARIO("Check two things equal each other").
+	GIVEN("Two things").
+		THEN("ThingA should equal ThingB").
+END();
 
-GIVEN.Criteria = {
+SCENARIO.Criteria = {
 	"Two things" : function(){
 		return {
 			thingA : new ThingA(),
@@ -99,11 +100,16 @@ GIVEN.Criteria = {
 	}
 }
 
+
 // Opt for this instead
 
-GIVEN("ThingA").AND("ThingB").THEN("ThingA should equal ThingB").END();
+SCENARIO("Check two things equal each other").
+	GIVEN("ThingA").
+		AND("ThingB").
+			THEN("ThingA should equal ThingB").
+END();
 
-GIVEN.Criteria = {
+SCENARIO.Criteria = {
 	"ThingA" : function(){
 		return new ThingA();
 	},

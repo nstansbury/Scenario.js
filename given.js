@@ -1,26 +1,18 @@
 "use strict";
+/** @description A Natural Language BDD testing framework */
 /** @author Neil Stansbury <neil@neilstansbury.com> */
 /** @version 0.1 */
 
 
-/** @param {String} name */
+/** @param {String} title */
 /** @static */
-function GIVEN(name){
-	var scenario = new GIVEN.Scenario(GIVEN.Criteria);
-	scenario.title = GIVEN.title;
-	return scenario.GIVEN(name);
+function SCENARIO(title){
+	var scenario = new SCENARIO.Scenario(title, SCENARIO.Criteria);
+	return scenario;
 }
 
-/** @type Number */
-GIVEN.defaultTimeout = 500;
-
-GIVEN.version = 0.1;
-
-/** @type String */
-GIVEN.title = "";
-
 /** @constructor */
-GIVEN.Scenario = function Scenario(criteriaSet){
+SCENARIO.Scenario = function Scenario(title, criteriaSet){
 	this.__assertions = [];
 	this.__names = {};
 	try {
@@ -29,11 +21,12 @@ GIVEN.Scenario = function Scenario(criteriaSet){
 		}
 	}
 	catch(e){
-		throw "No criteria found for Scenario :: " +GIVEN.title;
+		throw "No criteria found for Scenario :: " +SCENARIO.title;
 	}
+	this.title = title;
 	this.Criteria = criteriaSet;
 }
-GIVEN.Scenario.prototype = {
+SCENARIO.Scenario.prototype = {
 	/** @private */
 	/** @type Array */
 	/** @description stack to store the order the criteria are asserted in */
@@ -43,6 +36,9 @@ GIVEN.Scenario.prototype = {
 	/** @type Object */
 	/** @description Criteria names as index into assertions */
 	__names : null,
+	
+	/** @type Number */
+	defaultTimeout : 500,
 	
 	/** @type String */
 	title : "",
@@ -81,13 +77,13 @@ GIVEN.Scenario.prototype = {
 		this.__names[name] = this.__assertions.length -1;
 	},
 	
-	/** @returns {GIVEN.Iterator} */
+	/** @returns {SCENARIO.Iterator} */
 	getAssertions : function(){
-		return new GIVEN.Iterator(this.__assertions);
+		return new SCENARIO.Iterator(this.__assertions);
 	},
 	
 	/** @param {String} name */
-	/** @returns {GIVEN.Assertion} */
+	/** @returns {SCENARIO..Assertion} */
 	getAssertion : function(name){
 		var i = this.__names[name];
 		return this.__assertions[i];
@@ -111,7 +107,7 @@ GIVEN.Scenario.prototype = {
 	/** @returns {Object|Boolean} */
 	Given : function Given(name){
 		var a = this.getAssertion(name);
-		if(a.type != GIVEN.AssertionType.Given){
+		if(a.type != SCENARIO.AssertionType.Given){
 			return false;
 		}
 		return a.result;
@@ -121,7 +117,7 @@ GIVEN.Scenario.prototype = {
 	/** @returns {Object|Boolean} */
 	When : function When(name){
 		var a = this.getAssertion(name);
-		if(a.type != GIVEN.AssertionType.When){
+		if(a.type != SCENARIO.AssertionType.When){
 			return false;
 		}
 		return a.result;
@@ -131,7 +127,7 @@ GIVEN.Scenario.prototype = {
 	/** @returns {Boolean} */
 	Then : function Then(name){
 		var a = this.getAssertion(name);
-		if(a.type != GIVEN.AssertionType.Then){
+		if(a.type != SCENARIO.AssertionType.Then){
 			return false;
 		}
 		return a.result;
@@ -151,14 +147,14 @@ GIVEN.Scenario.prototype = {
 	},
 	
 	/** @param {String} criteria */
-	/** @returns {GIVEN.Scenario} */
+	/** @returns {SCENARIO.Scenario} */
 	AND : function(criteria){
 		// Check the last assertion type pushed onto the stack
 		var last = this.__assertions[ this.__assertions.length -1 ];
-		if(last.type != GIVEN.AssertionType.When){
+		if(last.type != SCENARIO.AssertionType.When){
 			this.GIVEN(criteria);
 		}
-		else if(last != GIVEN.AssertionType.Then){
+		else if(last != SCENARIO.AssertionType.Then){
 			this.WHEN(criteria);
 		}
 		else {
@@ -168,29 +164,29 @@ GIVEN.Scenario.prototype = {
 	},
 	
 	/** @param {String} criteria */
-	/** @returns {GIVEN.Scenario} */
+	/** @returns {SCENARIO.Scenario} */
 	GIVEN : function(criteria){
-		this.addAssertion(GIVEN.AssertionType.Given, criteria);
+		this.addAssertion(SCENARIO.AssertionType.Given, criteria);
 		return this;
 	},
 	
 	/** @param {String} criteria */
-	/** @returns {GIVEN.Scenario} */
+	/** @returns {SCENARIO.Scenario} */
 	WHEN : function(criteria){
-		this.addAssertion(GIVEN.AssertionType.When, criteria);
+		this.addAssertion(SCENARIO.AssertionType.When, criteria);
 		return this;
 	},
 	
-	/** @param {String} describe */
-	/** @returns {GIVEN.Scenario} */
+	/** @param {String} criteria */
+	/** @returns {SCENARIO.Scenario} */
 	THEN : function(criteria){
-		this.addAssertion(GIVEN.AssertionType.Then, criteria);
+		this.addAssertion(SCENARIO.AssertionType.Then, criteria);
 		return this;
 	},
 	
 	/** @returns {Void} */
 	END  : function(timeout){
-		timeout = timeout || GIVEN.defaultTimeout;
+		timeout = timeout || this.defaultTimeout;
 		
 		var scenario = this;
 		var assertion = null;
@@ -198,7 +194,7 @@ GIVEN.Scenario.prototype = {
 		
 		function endScenario(){
 			timeout = -1;
-			GIVEN.Reporter.write(scenario);
+			SCENARIO.Reporter.write(scenario);
 		}
 		
 		function onassert(){
@@ -229,14 +225,14 @@ GIVEN.Scenario.prototype = {
 	}
 }
 
-GIVEN.AssertionType = {
+SCENARIO.AssertionType = {
 	Given : 0,
 	When : 1,
 	Then : 2
 }
 
-GIVEN.Assertion = {
-	/** @type GIVEN.AssertionType */
+SCENARIO.Assertion = {
+	/** @type SCENARIO.AssertionType */
 	type : null,
 	
 	/** @type String */
@@ -248,11 +244,11 @@ GIVEN.Assertion = {
 
 /** @param {Array} array */
 /** @constructor */
-GIVEN.Iterator = function Iterator(array){
+SCENARIO.Iterator = function Iterator(array){
 	this.__array = array || [];
     this.__index = 0;
 }
-GIVEN.Iterator.prototype = {
+SCENARIO.Iterator.prototype = {
 	/** @returns {Boolean} */
     hasMore: function() { return this.__index < this.__array.length; },
 	/** @returns {Object} */
@@ -260,8 +256,8 @@ GIVEN.Iterator.prototype = {
 }
 
 /** @constructor */
-GIVEN.Reporter = {
-	/** @param {GIVEN.Scenario} scenario */
+SCENARIO.Reporter = {
+	/** @param {SCENARIO.Scenario} scenario */
 	write : function(scenario){
 		var stringBuilder = [];
 		var result = true;
@@ -271,15 +267,15 @@ GIVEN.Reporter = {
 		while(assertions.hasMore()){
 			var assertion = assertions.getNext();
 			switch(assertion.type){
-				case GIVEN.AssertionType.Given:
+				case SCENARIO.AssertionType.Given:
 					statement = g;
 					g = "\n\tAND";
 					break;
-				case GIVEN.AssertionType.When:
+				case SCENARIO.AssertionType.When:
 					statement = w;
 					w = "\n\t\t\tAND";
 					break;
-				case GIVEN.AssertionType.Then:
+				case SCENARIO.AssertionType.Then:
 					statement = t;
 					t = "\n\t\t\t\tAND";
 					break;
@@ -294,11 +290,11 @@ GIVEN.Reporter = {
 	}
 }
 
-GIVEN.HTMLReporter = function HTMLReporter(){
+SCENARIO.HTMLReporter = function HTMLReporter(){
 	
 }
-GIVEN.HTMLReporter.prototype = {
-	__proto__ : GIVEN.Reporter,
+SCENARIO.HTMLReporter.prototype = {
+	__proto__ : SCENARIO.Reporter,
 	write : function(scenario){
 		
 		var ol = document.getElementById("gResults");
@@ -321,15 +317,15 @@ GIVEN.HTMLReporter.prototype = {
 		while(assertions.hasMore()){
 			var assertion = assertions.getNext();
 			switch(assertion.type){
-				case GIVEN.AssertionType.Given:
+				case SCENARIO.AssertionType.Given:
 					statement = g;
 					g = "AND";
 					break;
-				case GIVEN.AssertionType.When:
+				case SCENARIO.AssertionType.When:
 					statement = w;
 					w = "AND";
 					break;
-				case GIVEN.AssertionType.Then:
+				case SCENARIO.AssertionType.Then:
 					statement = t;
 					t = "AND";
 					break;

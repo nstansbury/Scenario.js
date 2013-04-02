@@ -1,6 +1,6 @@
-GIVEN.Reporter = new GIVEN.HTMLReporter();
+SCENARIO.Reporter = new SCENARIO.HTMLReporter();
 
-GIVEN.Criteria = {
+SCENARIO.Criteria = {
 	"a web page" : function(){
 		return window.document;
 	},
@@ -32,23 +32,24 @@ GIVEN.Criteria = {
 	}
 }
 
-GIVEN.title = "Check a loaded event occurs when the page loads";
-GIVEN("a web page").
-	WHEN("it is loaded").
-		THEN("a document loaded event occurs").
+
+SCENARIO("Check a loaded event occurs when the page loads").
+	GIVEN("a web page").
+		WHEN("it is loaded").
+			THEN("a document loaded event occurs").
 END();
 
 
-GIVEN.title = "Check an unloaded event occurs when the page unloads";
-GIVEN("a web page").
-	AND("it is loaded").
-		WHEN("it is unloaded").
-			THEN("a document unloaded event occurs").
+SCENARIO("Check an unloaded event occurs when the page unloads").
+	GIVEN("a web page").
+		AND("it is loaded").
+			WHEN("it is unloaded").
+				THEN("a document unloaded event occurs").
 END();
 
 
 
-GIVEN.Criteria = {
+SCENARIO.Criteria = {
 	"an HTML5 Video" : function(){
 		var scenario = this;
 		function loaded(){
@@ -81,12 +82,11 @@ GIVEN.Criteria = {
 }
 
 
-GIVEN.title = "Check a playing and a play event occurs when an HTML5 video is played";
-
-GIVEN("an HTML5 Video").
-	WHEN("play() is called").
-		THEN("a play event is raised").
-			AND("a playing event is raised").
+SCENARIO("Check a playing and a play event occurs when an HTML5 video is played").
+	GIVEN("an HTML5 Video").
+		WHEN("play() is called").
+			THEN("a play event is raised").
+				AND("a playing event is raised").
 END(2000);	// Optional timeout for the test
 
 
