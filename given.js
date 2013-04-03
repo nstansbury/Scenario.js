@@ -21,7 +21,7 @@ SCENARIO.Scenario = function Scenario(title, criteriaSet){
 		}
 	}
 	catch(e){
-		console.log("No criteria found for Scenario :: " +title);
+		console.log("No Criteria for Scenario :: '" +title +"'");
 	}
 	this.title = title;
 	this.Criteria = criteriaSet || {};
@@ -46,8 +46,8 @@ SCENARIO.Scenario.prototype = {
 	/** @param {Given.Assertion} assertion */
 	/** @returns {Object} */
 	hasAssertion : function hasAssertion(assertion){
-		var f = this.Criteria[assertion.name];
 		try {
+			var f = this.Criteria[assertion.name];
 			if(!f){
 				throw "Assertion is not defined";
 			}
@@ -59,7 +59,9 @@ SCENARIO.Scenario.prototype = {
 		}
 		catch(e){
 			assertion.result = false;
-			console.log("Assertion Failed: '" +assertion.name +"' :: " +e);
+			if(Object.keys(this.Criteria).length != 0){
+				console.log("Assertion Failed: '" +assertion.name +"' :: " +e);
+			}	
 		}
 		return assertion.result;
 	},
