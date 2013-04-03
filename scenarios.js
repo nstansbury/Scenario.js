@@ -88,7 +88,3 @@ SCENARIO("Check a playing and a play event occurs when an HTML5 video is played"
 			THEN("a play event is raised").
 				AND("a playing event is raised").
 END(2000);	// Optional timeout for the test
-
-
-
-

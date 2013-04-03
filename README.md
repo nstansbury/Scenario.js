@@ -9,12 +9,28 @@ SCENARIO("Description").GIVEN("criteria").WHEN("criteria").THEN("criteria").AND(
 
 It is designed so that the BDD scenarios can be written directly by BAs or developers in a natural language syntax that can be directly executed in any JavaScript environment.
 
-The BDD scenarios can be defined and executed separately from the individual scenario criteria implemented by the developers.
+The BDD scenarios can be defined and executed separately from individual scenario criteria implemented by the developers.
 
-Each criteria is executed as a self-contained assertion, allowing developers to reuse the criteria across multiple scenarios.
+Each criteria is executed as a self-contained assertion, allowing developers to reuse the criteria across multiple scenarios in the same story or feature file. This allows a more natural OO coding style, with a consistant scope that doesn't rely on multiple nested closures.
 
-Any combination of GIVENs, WHENs, THENs & ANDs can be chanined together, which are automatically executed asynchronously if 'false' is returned from the assertion.
-The state and values of previous assertions can be accessed throughout the scenario chain using a 'Given/When/Then/If(criteria)' syntax. END() takes an optional test timeout argument in m/s.
+Any combination of GIVENs, WHENs, THENs & ANDs can be chanined together, which are automatically executed asynchronously if 'false' is returned from the assertion. The scenario will wait for the assertion to become "truthy" or the test will fail.
+
+As the context of an assertion is always that of its' current scenario, the state and values of previous assertions in the scenario chain can be accessed using a 'Given/When/Then/The/If(criteria)' syntax:
+
+```javascript
+scenario.Given("criteria");	// Return the result of this assertion if it has been executed as a GIVEN
+scenario.When("criteria");	// Return the result of this assertion if it has been executed as a WHEN
+scenario.Then("criteria");	// Return the result of this assertion if it has been executed as a THEN
+scenario.The("criteria");	// Return the result of this assertion however it was been executed
+scenario.If("criteria");	// Has this assertion passed
+```
+
+Callbacks can assert a specific value asynchronously as if returned from the original assertion call:
+```javascript
+scenario.Assert("criteria", value);	// Assert a specific value against this criteria
+```
+
+Finally, END() takes an optional test timeout argument in m/s.
 
 
 ```javascript
@@ -48,8 +64,7 @@ SCENARIO.Criteria = {
 		return window.document;
 	},
 	
-	"it is loaded" : function(){
-		var scenario = this;
+	"it is loaded" : function(scenario){
 		function event(){
 			scenario.Assert("it is loaded", true);
 		}
@@ -65,8 +80,7 @@ SCENARIO.Criteria = {
 		return this.If("it is unloaded");
 	},
 	
-	"a document unloaded event occurs" : function(){
-		var scenario = this;
+	"a document unloaded event occurs" : function(scenario){
 		function event(){
 			scenario.Assert("it is unloaded", true);
 		}

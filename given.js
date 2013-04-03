@@ -51,7 +51,8 @@ SCENARIO.Scenario.prototype = {
 			if(!f){
 				throw "Assertion is not defined";
 			}
-			assertion.result = f.call(this);				// Criteria asserted in the scope of this Scenario
+			// Criteria asserted in the scope of this Scenario, and passed in as an argument as a convienience for callbacks
+			assertion.result = f.call(this, this);
 			if(assertion.result == undefined) {
 				assertion.result = false;
 			}
@@ -103,6 +104,7 @@ SCENARIO.Scenario.prototype = {
 		}
 	},
 	
+	/** @description Return the result of this assertion if it has been executed as a GIVEN */
 	/** @param {String} name */
 	/** @returns {Object|Boolean} */
 	Given : function Given(name){
@@ -113,6 +115,7 @@ SCENARIO.Scenario.prototype = {
 		return a.result;
 	},
 	
+	/** @description Return the result of this assertion if it has been executed as a WHEN */
 	/** @param {String} name */
 	/** @returns {Object|Boolean} */
 	When : function When(name){
@@ -123,6 +126,7 @@ SCENARIO.Scenario.prototype = {
 		return a.result;
 	},
 	
+	/** @description Return the result of this assertion if it has been executed as a THEN */
 	/** @param {String} name */
 	/** @returns {Boolean} */
 	Then : function Then(name){
@@ -133,13 +137,14 @@ SCENARIO.Scenario.prototype = {
 		return a.result;
 	},
 	
+	/** @description Return whether this assertion has passed */
 	/** @param {String} name */
 	/** @returns {Boolean} */
-	/** @description A naughty piece of sweet syntactic sugar */
 	If : function If(name){
 		return Boolean(this.getAssertion(name).result);
 	},
 	
+	/** @description Return the result of this assertion */
 	/** @param {String} name */
 	/** @returns {Object} */
 	The : function The(name){
