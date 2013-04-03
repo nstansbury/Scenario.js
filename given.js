@@ -262,6 +262,36 @@ SCENARIO.Iterator.prototype = {
     getNext: function () { return ( this.__index < this.__array.length ) ? this.__array[this.__index++] : null; }
 }
 
+/** @param {String|Array} scenarios */
+SCENARIO.run = function run(scenarios){
+	scenarios = new SCENARIO.Iterator(Array.isArray(scenarios) ? scenarios : [scenarios]);
+	
+	function onloadscript()	{
+		console.log("Loaded Scenario :: " +this.src);
+		nextScenario();
+	}
+	
+	function nextScenario(){
+		while(scenarios.hasMore()){
+			var scenario = scenarios.getNext();
+			
+			var head = document.getElementsByTagName("HEAD")[0];
+			var script = document.createElement("SCRIPT");
+			script.type = "text/javascript";
+			script.src = scenario;
+			script.addEventListener("load", onloadscript, false);
+			head.appendChild(script);
+			return;
+		}
+	}
+	nextScenario();
+}
+
+/** @param {String} script */
+SCENARIO.require = function require(script){
+	// TBI
+}
+
 /** @constructor */
 SCENARIO.Reporter = {
 	/** @param {SCENARIO.Scenario} scenario */
@@ -291,7 +321,7 @@ SCENARIO.Reporter = {
 			stringBuilder.push(assertion.name);
 			result = (result == false) ? false : assertion.result;
 		}
-		console.log(scenario.title);
+		console.log("SCENARIO: " +scenario.title);
 		stringBuilder.push(result ? "\nPASSED" : "\nFAILED");
 		console.log("\t" +stringBuilder.join(" "));
 	}

@@ -1,16 +1,15 @@
-SCENARIO.Reporter = new SCENARIO.HTMLReporter();
-
 SCENARIO.Criteria = {
 	"a web page" : function(){
 		return window.document;
 	},
 	
-	"it is loaded" : function(){
-		var scenario = this;
+	"it is loaded" : function(scenario){
 		function event(){
-			scenario.Assert("it is loaded", true);
+			if(scenario.Given("a web page").readyState == "complete"){
+				scenario.Assert("it is loaded", true);
+			}
 		}
-		this.Given("a web page").addEventListener("DOMContentLoaded", event, false);
+		scenario.Given("a web page").addEventListener("readystatechange", event, false);
 		return false;
 	},
 	
@@ -22,12 +21,12 @@ SCENARIO.Criteria = {
 		return this.If("it is unloaded");
 	},
 	
-	"a document unloaded event occurs" : function(){
+	"a document unload event occurs" : function(){
 		var scenario = this;
 		function event(){
 			scenario.Assert("it is unloaded", true);
 		}
-		this.Given("a web page").addEventListener("unloaded", event, false);
+		this.Given("a web page").addEventListener("unload", event, false);
 		return false;
 	}
 }
@@ -50,15 +49,16 @@ END();
 
 
 SCENARIO.Criteria = {
-	"an HTML5 Video" : function(){
-		var scenario = this;
-		function loaded(){
-			var video = document.createElement("VIDEO");
-			video.src = "http://download.blender.org/peach/trailer/trailer_400p.ogg";
-			document.body.appendChild(video);
-			scenario.Assert("an HTML5 Video", video);
+	"an HTML5 Video" : function(scenario){
+		function event(){
+			if(document.readyState == "complete"){
+				var video = document.createElement("VIDEO");
+				video.src = "http://download.blender.org/peach/trailer/trailer_400p.ogg";
+				document.body.appendChild(video);
+				scenario.Assert("an HTML5 Video", video);
+			}
 		}
-		document.addEventListener("DOMContentLoaded", loaded, false);
+		document.addEventListener("readystatechange", event, false);
 		return false;
 	},
 	"play() is called" : function(When){

@@ -5,8 +5,16 @@
 		<meta charset="UTF-8">
 		<title>Given.js</title>
 		<script type="text/javascript" src="given.js"></script>
-		<script type="text/javascript" src="scenarios.js"></script>
 		<link rel="stylesheet" type="text/css" href="given.css" />
+		
+		<script type="text/javascript">
+			window.addEventListener("DOMContentLoaded", run, false);
+			
+			function run(){
+				SCENARIO.Reporter = new SCENARIO.HTMLReporter();
+				SCENARIO.run("scenarios.js");
+			}
+		</script>
 	</head>
 	<body>
 		<h1 id="gApp">Given.js version 0.1</h1>
