@@ -21,10 +21,10 @@ SCENARIO.Scenario = function Scenario(title, criteriaSet){
 		}
 	}
 	catch(e){
-		throw "No criteria found for Scenario :: " +SCENARIO.title;
+		console.log("No criteria found for Scenario :: " +title);
 	}
 	this.title = title;
-	this.Criteria = criteriaSet;
+	this.Criteria = criteriaSet || {};
 }
 SCENARIO.Scenario.prototype = {
 	/** @private */
