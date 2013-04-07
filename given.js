@@ -43,39 +43,11 @@ SCENARIO.Scenario.prototype = {
 	/** @type String */
 	title : "",
 	
-	/** @param {Given.Assertion} assertion */
-	/** @returns {Object} */
-	hasAssertion : function hasAssertion(assertion){
-		try {
-			var f = this.Criteria[assertion.name];
-			if(!f){
-				throw "Assertion is not defined";
-			}
-			// Criteria asserted in the scope of this Scenario, and passed in as an argument as a convienience for callbacks
-			assertion.result = f.call(this, this);
-			if(assertion.result == undefined) {
-				assertion.result = false;
-			}
-		}
-		catch(e){
-			assertion.result = false;
-			if(Object.keys(this.Criteria).length != 0){
-				console.log("Assertion Failed: '" +assertion.name +"' :: " +e);
-			}	
-		}
-		return assertion.result;
-	},
-	
 	/** @param {Given.AssertionType} type */
 	/** @param {String} name */
 	/** @returns {Void} */
 	addAssertion : function addAssertion(type, name){
-		var assertion = {
-			type : type,
-			name : name,
-			result : false,
-			onassert : null,
-		}
+		var assertion = new SCENARIO.Assertion(this, type, name);
 		this.__assertions.push(assertion);
 		this.__names[name] = this.__assertions.length -1;
 	},
@@ -89,21 +61,18 @@ SCENARIO.Scenario.prototype = {
 	/** @returns {SCENARIO..Assertion} */
 	getAssertion : function(name){
 		var i = this.__names[name];
+		if(i == undefined){
+			throw("Assertion '" +name +"' is not implemented");
+		}
 		return this.__assertions[i];
 	},
 	
 	/** @param {String} name */
-	/** @param {Object} result */
+	/** @param {Object} value */
 	/** @returns {Void} */
-	Assert : function assert(name, result){
+	Assert : function assert(name, value){
 		var assertion = this.getAssertion(name);
-		if(!assertion){
-			throw "Assertion is not defined :: " +name;
-		}
-		assertion.result = result;
-		if(assertion.onassert){
-			assertion.onassert();
-		}
+		assertion.assert(value);
 	},
 	
 	/** @description Return the result of this assertion if it has been executed as a GIVEN */
@@ -161,7 +130,7 @@ SCENARIO.Scenario.prototype = {
 		if(last.type != SCENARIO.AssertionType.When){
 			this.GIVEN(criteria);
 		}
-		else if(last != SCENARIO.AssertionType.Then){
+		else if(last.type != SCENARIO.AssertionType.Then){
 			this.WHEN(criteria);
 		}
 		else {
@@ -219,12 +188,16 @@ SCENARIO.Scenario.prototype = {
 		function checkAssertion(){
 			while(assertions.hasMore()){
 				assertion = assertions.getNext();
-				var result = scenario.hasAssertion(assertion);
-				if(!result){
+				var result = assertion.run();
+				if(assertion.error){
+					console.warn(assertion.toString());
+				}
+				else if(!result){
 					assertion.onassert = onassert;
 					return;
 				}
 			}
+			endScenario();
 		}
 		
 		timeout = setTimeout(endScenario, timeout);
@@ -238,16 +211,85 @@ SCENARIO.AssertionType = {
 	Then : 2
 }
 
-SCENARIO.Assertion = {
+/** @param {SCENARIO.Scenario} scenario */
+/** @param {SCENARIO.AssertionType} type */
+/** @param {Array} name */
+/** @constructor */
+SCENARIO.Assertion = function Assertion(scenario, type, name){
+	this.__scenario = scenario;
+	this.__functor = scenario.Criteria[name];
+	this.name = name;
+	this.type = type;
+}
+SCENARIO.Assertion.prototype = {
 	/** @type SCENARIO.AssertionType */
 	type : null,
 	
 	/** @type String */
 	name : "",
 	
-	/** @type Object|Boolean */
-	result : null
+	/** @type Object */
+	result : null,
+	
+	/** @type String */
+	stack : null,
+	
+	/** @type Error */
+	error : null,
+	
+	/** @returns {Object} */
+	run : function(){
+		try {
+			// Assertion run in the scope of this Scenario, and passed in as an argument as a convienience for callbacks
+			if(this.__functor){
+				var result = this.__functor.call(this.__scenario, this.__scenario);
+			}
+			else {
+				var result  = false;
+				console.warn("Assertion: '" +this.name +"' is not implemented");
+			}
+		}
+		catch(e){
+			var result  = false;
+			this.error = e;
+			// Chrome & Firefox format stack traces differently
+			this.stack = new Error().stack.replace(/.*\(|.*@|Error\s|.*at\s|\)|\s,/gi, "").split("\n");
+		}
+		finally{
+			this.assert(result);
+			return this.result;
+		}
+	},
+	
+	assert : function(value){
+		this.result = value;
+		
+		if(this.onassert){
+			this.onassert();
+		}
+	},
+	
+	/** @type Function */
+	onassert : null,
+	
+	/** @returns {String} */
+	toString : function(){
+		switch(this.type){
+			case SCENARIO.AssertionType.Given:
+				var type = "GIVEN '";
+				break;
+			case SCENARIO.AssertionType.When:
+				var type = "WHEN '";
+				break;
+			case SCENARIO.AssertionType.Then:
+				var type = "THEN '";
+		}
+		var result = Boolean(this.result) ? "\nPASSED" : "\nFAILED: " +this.error;
+		return type +this.name +"'" +result +"\n" +this.stack[this.stack.length -1];
+	}
 }
+
+
 
 /** @param {Array} array */
 /** @constructor */
