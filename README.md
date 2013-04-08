@@ -15,13 +15,13 @@ Each criteria is executed as a self-contained assertion, allowing developers to 
 
 Any combination of GIVENs, WHENs, THENs & ANDs can be chanined together, which are automatically executed asynchronously if 'false' is returned from the assertion. The scenario will wait for the assertion to become "truthy" or the test will fail.
 
-As the context of an assertion is always that of its' current scenario, the state and values of previous assertions in the scenario chain can be accessed using a 'Given/When/Then/The/If(criteria)' syntax:
+An assertion can always access the state and values of previous assertions in the scenario using a 'Given/When/Then/The/If(criteria)' syntax:
 
 ```javascript
 scenario.Given("criteria");	// Return the result of this assertion if it has been executed as a GIVEN
 scenario.When("criteria");	// Return the result of this assertion if it has been executed as a WHEN
 scenario.Then("criteria");	// Return the result of this assertion if it has been executed as a THEN
-scenario.The("criteria");	// Return the result of this assertion however it was been executed
+scenario.The("criteria");	// Return the result of this assertion however it has been executed
 scenario.If("criteria");	// Has this assertion passed
 ```
 
@@ -72,19 +72,19 @@ SCENARIO.Criteria = {
 		return false;
 	},
 	
-	"a document loaded event occurs" : function(){
-		return this.If("it is loaded");
+	"a document loaded event occurs" : function(scenario){
+		return scenario.If("it is loaded");
 	},
 	
-	"it is unloaded" : function(){
-		return this.If("it is unloaded");
+	"it is unloaded" : function(scenario){
+		return scenario.If("it is unloaded");
 	},
 	
 	"a document unloaded event occurs" : function(scenario){
 		function event(){
 			scenario.Assert("it is unloaded", true);
 		}
-		this.Given("a web page").addEventListener("unloaded", event, false);
+		scenario.Given("a web page").addEventListener("unloaded", event, false);
 		return false;
 	}
 }
@@ -109,8 +109,8 @@ SCENARIO.Criteria = {
 		}
 	},
 	
-	"Thing A should equal thing B" : function(){
-		return this.Given("Two things").thingA == this.Given("Two things").thingB;
+	"Thing A should equal thing B" : function(scenario){
+		return scenario.Given("Two things").thingA == scenario.Given("Two things").thingB;
 	}
 }
 
@@ -132,6 +132,8 @@ SCENARIO.Criteria = {
 	},
 	"Thing A should equal thing B" : function(){
 		return this.Given("ThingA") == this.Given("ThingB");
+	"Thing A should equal thing B" : function(scenario){
+		return scenario.Given("ThingA") == scenario.Given("ThingB");
 	}
 }
 ```
