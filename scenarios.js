@@ -13,20 +13,19 @@ SCENARIO.Criteria = {
 		return false;
 	},
 	
-	"a document loaded event occurs" : function(){
-		return this.If("it is loaded");
+	"a document loaded event occurs" : function(scenario){
+		return scenario.If("it is loaded");
 	},
 	
-	"it is unloaded" : function(){
-		return this.If("it is unloaded");
+	"it is unloaded" : function(scenario){
+		return scenario.If("it is unloaded");
 	},
 	
-	"a document unload event occurs" : function(){
-		var scenario = this;
+	"a document unload event occurs" : function(scenario){
 		function event(){
 			scenario.Assert("it is unloaded", true);
 		}
-		this.Given("a web page").addEventListener("unload", event, false);
+		scenario.Given("a web page").addEventListener("unload", event, false);
 		return false;
 	}
 }
@@ -43,7 +42,7 @@ SCENARIO("Check an unloaded event occurs when the page unloads").
 	GIVEN("a web page").
 		AND("it is loaded").
 			WHEN("it is unloaded").
-				THEN("a document unloaded event occurs").
+				THEN("a document unload event occurs").
 END();
 
 
@@ -61,23 +60,21 @@ SCENARIO.Criteria = {
 		document.addEventListener("readystatechange", event, false);
 		return false;
 	},
-	"play() is called" : function(When){
-		this.Given("an HTML5 Video").play();
+	"play() is called" : function(scenario){
+		scenario.Given("an HTML5 Video").play();
 		return true;
 	},
-	"a play event is raised" : function(){
-		var scenario = this;
+	"a play event is raised" : function(scenario){
 		function play(){
 			scenario.Assert("a play event is raised", true);
 		}
-		this.Given("an HTML5 Video").addEventListener("play", play, false);
+		scenario.Given("an HTML5 Video").addEventListener("play", play, false);
 	},
-	"a playing event is raised" : function(){
-		var scenario = this;
+	"a playing event is raised" : function(scenario){
 		function playing(){
 			scenario.Assert("a playing event is raised", true);
 		}
-		this.Given("an HTML5 Video").addEventListener("playing", playing, false);
+		scenario.Given("an HTML5 Video").addEventListener("playing", playing, false);
 	}
 }
 
