@@ -11,6 +11,8 @@ function SCENARIO(title){
 	return scenario;
 }
 
+SCENARIO.logOnAssert = false;
+
 /** @constructor */
 SCENARIO.Scenario = function Scenario(title, criteriaSet){
 	this.__assertions = [];
@@ -178,12 +180,7 @@ SCENARIO.Scenario.prototype = {
 				return;
 			}
 			assertion.onassert = null;			// Allows us to check whether a callback was made
-			if(assertion.result == false){
-				endScenario();
-			}
-			else {
-				checkAssertion();
-			}
+			checkAssertion();
 		}
 		
 		function checkAssertion(){
@@ -191,15 +188,14 @@ SCENARIO.Scenario.prototype = {
 				assertion = assertions.getNext();
 				assertion.onassert = onassert;		// We need to add a callback before invoking the assertion in case it asserts synchronously
 				assertion.run();
+				if(!Boolean(assertion.result)){
+					return;
+				}
 				if(assertion.error){
 					console.warn(assertion.toString());
 				}
-				else if(assertion.result == false){
-					return;
-				}
 				assertion.onassert = null;
 			}
-			endScenario();
 		}
 		
 		timeout = setTimeout(endScenario, timeout);
@@ -242,7 +238,9 @@ SCENARIO.Assertion.prototype = {
 	/** @returns {Void} */
 	run : function(){
 		try {
+			// Chrome & Firefox format stack traces differently
 			this.stack = new Error().stack.replace(/.*\(|.*@|Error\s|.*at\s|\)|\s,/gi, "").split("\n");
+			
 			// Assertion run in the scope of this Assertion object, and Scenario passed as an argument
 			if(this.__functor){
 				var result = this.__functor.call(this, this.__scenario);
@@ -255,14 +253,16 @@ SCENARIO.Assertion.prototype = {
 		catch(e){
 			var result  = false;
 			this.error = e;
-			// Chrome & Firefox format stack traces differently
 		}
 		finally{
-			this.assert(result);
+			this.result = result;
 		}
 	},
 	
 	assert : function(value){
+		if(SCENARIO.logOnAssert){
+			console.log("Asserting: '" +this.name +"' is " +(Boolean(value) ? "TRUE" : "FALSE"));	
+		}
 		this.result = value;
 		if(this.onassert){
 			this.onassert();
