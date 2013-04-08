@@ -188,11 +188,11 @@ SCENARIO.Scenario.prototype = {
 				assertion = assertions.getNext();
 				assertion.onassert = onassert;		// We need to add a callback before invoking the assertion in case it asserts synchronously
 				assertion.run();
-				if(!Boolean(assertion.result)){
-					return;
-				}
 				if(assertion.error){
 					console.warn(assertion.toString());
+				}
+				else if(Boolean(assertion.result) == false){
+					return;
 				}
 				assertion.onassert = null;
 			}
@@ -200,8 +200,34 @@ SCENARIO.Scenario.prototype = {
 		
 		timeout = setTimeout(endScenario, timeout);
 		checkAssertion();
+	},
+	
+	/** @param {Object} data */
+	/** @param {Function} callback */
+	/** @returns {Void} */
+	/** @description To allow a web worker source file to postMessage() back to the caller */
+	postMessage : function(data, callback){
+		// Need to support dispatching as a formal event as well
+		postMessage = callback;
+		var messageEvent = {
+			data : data,
+			origin : "",
+			source : null,
+			lastEventId : "",
+			ports : null
+		}
+		setTimeout(function(){onmessage.call(window, messageEvent)},1);
 	}
 }
+
+/** @description Function definition for web worker postMessage() */ 
+var postMessage = function postMessage(data){}
+
+/** @description Function definition for web worker importScripts() */ 
+var importScripts = function importScripts(script){
+	console.warn("Web Worker 'importScripts()' is not yet implemented");
+}
+
 
 SCENARIO.AssertionType = {
 	Given : 0,

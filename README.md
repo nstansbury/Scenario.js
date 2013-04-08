@@ -130,10 +130,44 @@ SCENARIO.Criteria = {
 	"ThingB" : function(){
 		return new ThingB();
 	},
-	"Thing A should equal thing B" : function(){
-		return this.Given("ThingA") == this.Given("ThingB");
 	"Thing A should equal thing B" : function(scenario){
 		return scenario.Given("ThingA") == scenario.Given("ThingB");
+	}
+}
+```
+
+Testing Web Workers
+
+Web worker scripts can be tested in isolation by testing each script file independently. postMessage()/onmessage() functionality can be mocked directly in the Scenario with scenario.postMessage():
+
+```javascript
+SCENARIO("A web worker posts the correct data back").
+	GIVEN("a message value of 1").
+		WHEN("it is posted in").
+			AND("a message is sent back")
+				THEN("the message value should equal 2").
+END();
+
+SCENARIO.Criteria = {
+	"a message value of 1" : function(){
+		return {
+			value : 1
+		}
+	},
+	"it is posted in" : function(scenario){
+		function callback(message){
+			scenario.Assert("a message is posted back", message);
+		}
+		var message = scenario.Given("a message value of 1");
+		scenario.postMessage(message, callback);
+		return true;
+	},
+	"a message is sent back" : function(scenario){
+		return scenario.If("a message is sent back");
+	},
+	"the message value should equal 2" : function(scenario){
+		var message = scenario.The("a message is posted back");
+		return message.data == 2;
 	}
 }
 ```
