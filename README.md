@@ -68,7 +68,7 @@ SCENARIO.Criteria = {
 		function event(){
 			scenario.Assert("it is loaded", true);
 		}
-		this.Given("a web page").addEventListener("DOMContentLoaded", event, false);
+		scenario.Given("a web page").addEventListener("DOMContentLoaded", event, false);
 		return false;
 	},
 	
@@ -141,7 +141,7 @@ Testing Web Workers
 Web worker scripts can be tested in isolation by testing each script file independently. postMessage()/onmessage() functionality can be mocked directly in the Scenario with scenario.postMessage():
 
 ```javascript
-SCENARIO("A web worker posts the correct data back").
+SCENARIO("Ensure a web worker posts the correct message data back").
 	GIVEN("a message value of 1").
 		WHEN("it is posted in").
 			AND("a message is sent back")
@@ -155,11 +155,11 @@ SCENARIO.Criteria = {
 		}
 	},
 	"it is posted in" : function(scenario){
-		function callback(message){
+		function callback(message){									// This callback is executed by the worker script calling postMessage()
 			scenario.Assert("a message is posted back", message);
 		}
 		var message = scenario.Given("a message value of 1");
-		scenario.postMessage(message, callback);
+		scenario.postMessage(message, callback);					// Scenario.postMessage() pushes a message into the worker scripts' onmessage handler
 		return true;
 	},
 	"a message is sent back" : function(scenario){
