@@ -177,6 +177,7 @@ SCENARIO.Scenario.prototype = {
 			if(timeout == -1){
 				return;
 			}
+			assertion.onassert = null;			// Allows us to check whether a callback was made
 			if(assertion.result == false){
 				endScenario();
 			}
@@ -188,14 +189,15 @@ SCENARIO.Scenario.prototype = {
 		function checkAssertion(){
 			while(assertions.hasMore()){
 				assertion = assertions.getNext();
-				var result = assertion.run();
+				assertion.onassert = onassert;		// We need to add a callback before invoking the assertion in case it asserts synchronously
+				assertion.run();
 				if(assertion.error){
 					console.warn(assertion.toString());
 				}
-				else if(!result){
-					assertion.onassert = onassert;
+				else if(assertion.result == false){
 					return;
 				}
+				assertion.onassert = null;
 			}
 			endScenario();
 		}
@@ -229,20 +231,21 @@ SCENARIO.Assertion.prototype = {
 	name : "",
 	
 	/** @type Object */
-	result : null,
+	result : false,
 	
-	/** @type String */
+	/** @type Array */
 	stack : null,
 	
 	/** @type Error */
 	error : null,
 	
-	/** @returns {Object} */
+	/** @returns {Void} */
 	run : function(){
 		try {
-			// Assertion run in the scope of this Scenario, and passed in as an argument as a convienience for callbacks
+			this.stack = new Error().stack.replace(/.*\(|.*@|Error\s|.*at\s|\)|\s,/gi, "").split("\n");
+			// Assertion run in the scope of this Assertion object, and Scenario passed as an argument
 			if(this.__functor){
-				var result = this.__functor.call(this.__scenario, this.__scenario);
+				var result = this.__functor.call(this, this.__scenario);
 			}
 			else {
 				var result  = false;
@@ -253,17 +256,14 @@ SCENARIO.Assertion.prototype = {
 			var result  = false;
 			this.error = e;
 			// Chrome & Firefox format stack traces differently
-			this.stack = new Error().stack.replace(/.*\(|.*@|Error\s|.*at\s|\)|\s,/gi, "").split("\n");
 		}
 		finally{
 			this.assert(result);
-			return this.result;
 		}
 	},
 	
 	assert : function(value){
 		this.result = value;
-		
 		if(this.onassert){
 			this.onassert();
 		}
@@ -284,8 +284,24 @@ SCENARIO.Assertion.prototype = {
 			case SCENARIO.AssertionType.Then:
 				var type = "THEN '";
 		}
-		var result = Boolean(this.result) ? "\nPASSED" : "\nFAILED: " +this.error;
-		return type +this.name +"'" +result +"\n" +this.stack[this.stack.length -1];
+		
+		var file = "";
+		if(!this.stack){
+			var result = "FAILED: Assertion was not tested";
+		}
+		else {
+			if(Boolean(this.result)){
+				var result = "PASSED";
+			}
+			else if(this.error){
+				var result = "FAILED: " +this.error;
+			}
+			else if(this.onassert){
+				var result = "FAILED: Asynchronous assertion never completed";
+			}
+			file = "\n" +this.stack[this.stack.length -1];
+		}
+		return type +this.name +"'\n" +result +file;
 	}
 }
 
