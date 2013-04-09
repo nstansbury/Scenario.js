@@ -7,11 +7,104 @@
 /** @param {String} title */
 /** @static */
 function SCENARIO(title){
-	var scenario = new SCENARIO.Scenario(title, SCENARIO.Criteria);
-	return scenario;
+	return new SCENARIO.Scenario(title, SCENARIO.Criteria);
 }
 
+/** @type Boolean */
 SCENARIO.logOnAssert = false;
+
+/** @type Number */
+SCENARIO.defaultTimeout = 500;
+
+/** @type Boolean */
+SCENARIO.isIdling = false;
+
+SCENARIO.__scenarios =[];
+
+/** @param {String|Array} scenarios */
+/** @returns {Void} */
+SCENARIO.run = function run(scenarios){
+	scenarios = new SCENARIO.Iterator(Array.isArray(scenarios) ? scenarios : [scenarios]);
+	
+	function onloadscript()	{
+		console.log("Loaded Scenario :: " +this.src);
+		nextScenario();
+	}
+	
+	function nextScenario(){
+		while(scenarios.hasMore()){
+			var scenario = scenarios.getNext();
+			
+			var head = document.getElementsByTagName("HEAD")[0];
+			var script = document.createElement("SCRIPT");
+			script.type = "text/javascript";
+			script.src = scenario;
+			script.addEventListener("load", onloadscript, false);
+			head.appendChild(script);
+		}
+	}
+	nextScenario();
+}
+
+/** @param {SCENARIO.Scenario} scenario */
+/** @returns {Void} */
+SCENARIO.end = function end(scenario){
+	if(!scenario){
+		return;		// End of blocked scenarios
+	}
+	if(SCENARIO.isIdling){
+		// Push this scenario on to the stack until we're unblocked
+		SCENARIO.__scenarios.push(scenario);
+		return;
+	}
+	
+	function endScenario(){
+		clearTimeout(timeout);
+		timeout = null;
+		SCENARIO.Reporter.write(scenario);
+		SCENARIO.isIdling = false;
+		SCENARIO.end(SCENARIO.__scenarios.pop());
+	}
+	
+	var assertion = null;
+	var assertions = scenario.getAssertions();
+	
+	function onassert(){
+		if(timeout == null){
+			return;
+		}
+		assertion.onassert = null;			// Allows us to check whether a callback was made
+		testAssertions();
+	}
+	
+	function testAssertions(){
+		while(assertions.hasMore()){
+			assertion = assertions.getNext();
+			assertion.onassert = onassert;		// We need to add a callback before invoking the assertion in case it asserts synchronously
+			assertion.run();
+			if(assertion.error){
+				console.warn(assertion.toString());
+				endScenario();
+				return;
+			}
+			else if(Boolean(assertion.result) == false){
+				// Going async on assertion should we idle?
+				SCENARIO.isIdling = SCENARIO.isIdling ? SCENARIO.isIdling : scenario.idling;
+				return;
+			}
+			assertion.onassert = null;
+		}
+	}
+	
+	var timeout = setTimeout(endScenario, scenario.timeout);
+	testAssertions();
+}
+
+/** @param {String} script */
+/** @returns {Void} */
+SCENARIO.require = function require(script){
+	// TBI
+}
 
 /** @constructor */
 SCENARIO.Scenario = function Scenario(title, criteriaSet){
@@ -23,7 +116,7 @@ SCENARIO.Scenario = function Scenario(title, criteriaSet){
 		}
 	}
 	catch(e){
-		console.log("No Criteria for Scenario :: '" +title +"'");
+		console.warn("No Criteria for Scenario :: '" +title +"'");
 	}
 	this.title = title;
 	this.Criteria = criteriaSet || {};
@@ -39,8 +132,12 @@ SCENARIO.Scenario.prototype = {
 	/** @description Criteria names as index into assertions */
 	__names : null,
 	
+	/** @type Boolean */
+	/** @description All scenarios are asynchronous by default. Idling causes Scenarios to block on END() until completed */
+	idling : false,
+	
 	/** @type Number */
-	defaultTimeout : 500,
+	timeout : SCENARIO.defaultTimeout,
 	
 	/** @type String */
 	title : "",
@@ -124,6 +221,11 @@ SCENARIO.Scenario.prototype = {
 		return this.getAssertion(name).result;
 	},
 	
+	/** @returns {Void} */
+	Idle  : function(){
+		this.idling = true;
+	},
+	
 	/** @param {String} criteria */
 	/** @returns {SCENARIO.Scenario} */
 	AND : function(criteria){
@@ -163,44 +265,10 @@ SCENARIO.Scenario.prototype = {
 	},
 	
 	/** @returns {Void} */
-	END  : function(timeout){
-		timeout = timeout || this.defaultTimeout;
-		
-		var scenario = this;
-		var assertion = null;
-		var assertions = this.getAssertions();
-		
-		function endScenario(){
-			timeout = -1;
-			SCENARIO.Reporter.write(scenario);
-		}
-		
-		function onassert(){
-			if(timeout == -1){
-				return;
-			}
-			assertion.onassert = null;			// Allows us to check whether a callback was made
-			checkAssertion();
-		}
-		
-		function checkAssertion(){
-			while(assertions.hasMore()){
-				assertion = assertions.getNext();
-				assertion.onassert = onassert;		// We need to add a callback before invoking the assertion in case it asserts synchronously
-				assertion.run();
-				if(assertion.error){
-					console.warn(assertion.toString());
-				}
-				else if(Boolean(assertion.result) == false){
-					return;
-				}
-				assertion.onassert = null;
-			}
-		}
-		
-		timeout = setTimeout(endScenario, timeout);
-		checkAssertion();
+	END  : function(){
+		SCENARIO.end(this);
 	},
+	
 	
 	/** @param {Object} data */
 	/** @param {Function} callback */
@@ -225,7 +293,7 @@ var postMessage = function postMessage(data){}
 
 /** @description Function definition for web worker importScripts() */ 
 var importScripts = function importScripts(script){
-	console.warn("Web Worker 'importScripts()' is not yet implemented");
+	console.info("Web Worker 'importScripts()' is not yet implemented");
 }
 
 
@@ -289,6 +357,9 @@ SCENARIO.Assertion.prototype = {
 		if(SCENARIO.logOnAssert){
 			console.log("Asserting: '" +this.name +"' is " +(Boolean(value) ? "TRUE" : "FALSE"));	
 		}
+		if(this.result){
+			throw "Assertion Failed : Attempting to re-assert a result for '" +this.name +"'";
+		}
 		this.result = value;
 		if(this.onassert){
 			this.onassert();
@@ -346,35 +417,6 @@ SCENARIO.Iterator.prototype = {
     getNext: function () { return ( this.__index < this.__array.length ) ? this.__array[this.__index++] : null; }
 }
 
-/** @param {String|Array} scenarios */
-SCENARIO.run = function run(scenarios){
-	scenarios = new SCENARIO.Iterator(Array.isArray(scenarios) ? scenarios : [scenarios]);
-	
-	function onloadscript()	{
-		console.log("Loaded Scenario :: " +this.src);
-		nextScenario();
-	}
-	
-	function nextScenario(){
-		while(scenarios.hasMore()){
-			var scenario = scenarios.getNext();
-			
-			var head = document.getElementsByTagName("HEAD")[0];
-			var script = document.createElement("SCRIPT");
-			script.type = "text/javascript";
-			script.src = scenario;
-			script.addEventListener("load", onloadscript, false);
-			head.appendChild(script);
-			return;
-		}
-	}
-	nextScenario();
-}
-
-/** @param {String} script */
-SCENARIO.require = function require(script){
-	// TBI
-}
 
 /** @constructor */
 SCENARIO.Reporter = {
