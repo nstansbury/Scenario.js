@@ -73,26 +73,35 @@ SCENARIO.end = function end(scenario){
 		if(timeout == null){
 			return;
 		}
-		assertion.onassert = null;			// Allows us to check whether a callback was made
-		testAssertions();
+		if(assertionPassed()){
+			testAssertions();	// we can test the next assertion
+		}
+	}
+	
+	function assertionPassed(){
+		if(assertion.error){
+			console.warn(assertion.toString());
+			endScenario();
+			return false;
+		}
+		else if(Boolean(assertion.result) == false){
+			// Going async on assertion should we idle?
+			SCENARIO.isIdling = SCENARIO.isIdling ? SCENARIO.isIdling : scenario.idling;
+			return false;
+		}
+		else{
+			return true;	
+		}
 	}
 	
 	function testAssertions(){
 		while(assertions.hasMore()){
 			assertion = assertions.getNext();
-			assertion.onassert = onassert;		// We need to add a callback before invoking the assertion in case it asserts synchronously
+			assertion.onassert = onassert;
 			assertion.run();
-			if(assertion.error){
-				console.warn(assertion.toString());
-				endScenario();
+			if(assertionPassed() == false){
 				return;
 			}
-			else if(Boolean(assertion.result) == false){
-				// Going async on assertion should we idle?
-				SCENARIO.isIdling = SCENARIO.isIdling ? SCENARIO.isIdling : scenario.idling;
-				return;
-			}
-			assertion.onassert = null;
 		}
 	}
 	
@@ -218,7 +227,11 @@ SCENARIO.Scenario.prototype = {
 	/** @param {String} name */
 	/** @returns {Object} */
 	Get : function Get(name){
-		return this.getAssertion(name).result;
+		var result = this.getAssertion(name).result;
+		if(result == undefined){
+			throw("Assertion '" +name +"' result is not valid");
+		}
+		return result;
 	},
 	
 	/** @returns {Void} */
