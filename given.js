@@ -358,7 +358,7 @@ SCENARIO.Assertion.prototype = {
 			}
 			else {
 				var result  = false;
-				console.warn("Assertion: '" +this.name +"' is not implemented");
+				this.error = "Assertion: '" +this.name +"' is not implemented";
 			}
 		}
 		catch(e){
@@ -367,6 +367,9 @@ SCENARIO.Assertion.prototype = {
 		}
 		finally{
 			this.result = result;
+			if(this.error){
+				console.warn(this.error);
+			}
 		}
 	},
 	
