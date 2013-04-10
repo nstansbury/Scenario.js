@@ -315,9 +315,9 @@ var importScripts = function importScripts(script){
 
 
 SCENARIO.AssertionType = {
-	Given : 0,
-	When : 1,
-	Then : 2
+	Given : 1,
+	When : 2,
+	Then : 3
 }
 
 /** @param {SCENARIO.Scenario} scenario */
@@ -341,7 +341,7 @@ SCENARIO.Assertion.prototype = {
 	result : false,
 	
 	/** @type Array */
-	stack : null,
+	stack : [],
 	
 	/** @type Error */
 	error : null,
@@ -410,8 +410,8 @@ SCENARIO.Assertion.prototype = {
 			else if(this.error){
 				var result = "FAILED: " +this.error;
 			}
-			else if(this.onassert){
-				var result = "FAILED: Asynchronous assertion never completed";
+			else {
+				var result = "FAILED: Assertion was false";
 			}
 			file = "\n" +this.stack[this.stack.length -1];
 		}
@@ -477,46 +477,84 @@ SCENARIO.HTMLReporter.prototype = {
 	__proto__ : SCENARIO.Reporter,
 	write : function(scenario){
 		
-		var ol = document.getElementById("gResults");
-		if(!ol){
-			ol = document.createElement("OL");
-			ol.id = "gResults";
-			document.body.appendChild(ol);
+		function getHtmlResult(template, params){
+			for(var key in params)	{
+				template = template.replace("{" +key +"}", params[ key ]);
+			}
+			return template;
 		}
-		var li = document.createElement("LI");
-		ol.appendChild(li);
 		
-		var h2 = document.createElement("H2");
-		h2.innerHTML = scenario.title;
-		li.appendChild(h2);
-
-		var stringBuilder = [];
-		var g = "GIVEN", w = "WHEN", t = "THEN", statement = "";
+		var htmlScenario = "<dt {result}>{title}</dt><dd>{criteriaList}</dd>";
+		var htmlCriteriaList = "<dl>{givens}</dl><dl>{whens}</dl><dl>{thens}</dl>";
+		var htmlCriteria = "<dt {result}>{statement} '{title}'</dt><dd>{error} {file}</dd>";
+		
+		var result = true;
+		var lastType = 0;
+		var statement = "";
+		var criteria = {}
+		criteria[ SCENARIO.AssertionType.Given ] = [];
+		criteria[ SCENARIO.AssertionType.When ] = [];
+		criteria[ SCENARIO.AssertionType.Then ] = [];
 		
 		var assertions = scenario.getAssertions();
 		while(assertions.hasMore()){
 			var assertion = assertions.getNext();
-			switch(assertion.type){
-				case SCENARIO.AssertionType.Given:
-					statement = g;
-					g = "AND";
-					break;
-				case SCENARIO.AssertionType.When:
-					statement = w;
-					w = "AND";
-					break;
-				case SCENARIO.AssertionType.Then:
-					statement = t;
-					t = "AND";
-					break;
+			if(assertion.type == lastType){
+				statement = "AND";
+			}
+			else if(assertion.type == SCENARIO.AssertionType.Given) {
+				statement = "GIVEN";
+			}
+			else if(assertion.type == SCENARIO.AssertionType.When) {
+				statement = "WHEN";
+			}
+			else {
+				statement = "THEN";
 			}
 			
-			var span = document.createElement("SPAN");
-			span.innerHTML = statement +" " +assertion.name;
-			if(!Boolean(assertion.result)){
-				span.setAttribute("class", "failed");
+			result = (result) ? Boolean(assertion.result) : result;
+			var file = assertion.stack[assertion.stack.length -1]
+			if(!result){
+				if(file == undefined){
+					var error = "FAILED: Assertion was not tested";
+					file = "";
+				}
+				else {
+					var error = "FAILED: " +(assertion.error || "Assertion was 'false'")
+				}
 			}
-			li.appendChild(span);
+			else {
+				var error = "PASSED";
+			}
+			
+			var params = {
+				statement : statement,
+				title : assertion.name,
+				result : result ? "" : "data-failed",
+				error : error,
+				file : file
+			}
+			
+			var html = getHtmlResult(htmlCriteria, params);
+			criteria[assertion.type].push(html);
+			lastType = assertion.type;
 		}
+		
+		var params = {
+			givens : criteria[SCENARIO.AssertionType.Given].join(""),
+			whens : criteria[SCENARIO.AssertionType.When].join(""),
+			thens : criteria[SCENARIO.AssertionType.Then].join("")
+		}
+		var html = getHtmlResult(htmlCriteriaList, params);
+		
+		params = {
+			title : scenario.title,
+			result : result ? "" : "data-failed",
+			criteriaList : html
+		}
+		
+		var dl = document.createElement("DL");
+		dl.innerHTML = getHtmlResult(htmlScenario, params);
+		document.body.appendChild(dl);
 	}
 }
