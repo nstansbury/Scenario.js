@@ -276,7 +276,11 @@ SCENARIO.Scenario.prototype = {
 	/** @description To allow a web worker source file to postMessage() back to the caller */
 	postMessage : function(data, callback){
 		// Need to support dispatching as a formal event as well
-		postMessage = callback;
+		var restore = postMessage;
+		postMessage = function(e){
+			postMessage = restore;
+			callback(e);
+		}
 		var messageEvent = {
 			data : data,
 			origin : "",
