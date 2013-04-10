@@ -10,7 +10,6 @@ SCENARIO.Criteria = {
 			}
 		}
 		scenario.Get("a web page").addEventListener("readystatechange", event, false);
-		scenario.Idle();
 		return false;
 	},
 	
