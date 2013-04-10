@@ -5,11 +5,11 @@ SCENARIO.Criteria = {
 	
 	"it is loaded" : function(scenario){
 		function event(){
-			if(scenario.Given("a web page").readyState == "complete"){
+			if(scenario.Get("a web page").readyState == "complete"){
 				scenario.Assert("it is loaded", true);
 			}
 		}
-		scenario.Given("a web page").addEventListener("readystatechange", event, false);
+		scenario.Get("a web page").addEventListener("readystatechange", event, false);
 		scenario.Idle();
 		return false;
 	},
@@ -26,7 +26,7 @@ SCENARIO.Criteria = {
 		function event(){
 			scenario.Assert("it is unloaded", true);
 		}
-		scenario.Given("a web page").addEventListener("unload", event, false);
+		scenario.Get("a web page").addEventListener("unload", event, false);
 		return false;
 	}
 }
@@ -62,20 +62,20 @@ SCENARIO.Criteria = {
 		return false;
 	},
 	"play() is called" : function(scenario){
-		scenario.Given("an HTML5 Video").play();
+		scenario.Get("an HTML5 Video").play();
 		return true;
 	},
 	"a play event is raised" : function(scenario){
 		function play(){
 			scenario.Assert("a play event is raised", true);
 		}
-		scenario.Given("an HTML5 Video").addEventListener("play", play, false);
+		scenario.Get("an HTML5 Video").addEventListener("play", play, false);
 	},
 	"a playing event is raised" : function(scenario){
 		function playing(){
 			scenario.Assert("a playing event is raised", true);
 		}
-		scenario.Given("an HTML5 Video").addEventListener("playing", playing, false);
+		scenario.Get("an HTML5 Video").addEventListener("playing", playing, false);
 	}
 }
 
@@ -85,4 +85,4 @@ SCENARIO("Check a playing and a play event occurs when an HTML5 video is played"
 		WHEN("play() is called").
 			THEN("a play event is raised").
 				AND("a playing event is raised").
-END(2000);	// Optional timeout for the test
+END();

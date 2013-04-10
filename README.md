@@ -55,7 +55,7 @@ SCENARIO.Criteria = {
         function event(){
             scenario.Assert("it is loaded", true);
         }
-        scenario.Given("a web page").addEventListener("DOMContentLoaded", event, false);
+        scenario.Get("a web page").addEventListener("DOMContentLoaded", event, false);
         scenario.Idle();				// Request any scenario running this criteria idle until it completes
         return false;
     },
@@ -72,7 +72,7 @@ SCENARIO.Criteria = {
         function event(){
             scenario.Assert("it is unloaded", true);
         }
-        scenario.Given("a web page").addEventListener("unloaded", event, false);
+        scenario.Get("a web page").addEventListener("unloaded", event, false);
         return false;
     }
 }
@@ -102,7 +102,7 @@ SCENARIO.Criteria = {
     },
    
     "Thing A should equal thing B" : function(scenario){
-        return scenario.Given("Two things").thingA == scenario.Given("Two things").thingB;
+        return scenario.Get("Two things").thingA == scenario.Get("Two things").thingB;
     }
 }
 
@@ -123,7 +123,7 @@ SCENARIO.Criteria = {
         return new ThingB();
     },
     "Thing A should equal thing B" : function(scenario){
-        return scenario.Given("ThingA") == scenario.Given("ThingB");
+        return scenario.Get("ThingA") == scenario.Get("ThingB");
     }
 }
 ```
@@ -151,7 +151,7 @@ SCENARIO.Criteria = {
             // This callback is executed by the worker script calling postMessage()
             scenario.Assert("a message is sent back", message);
         }
-        var message = scenario.Given("a message value of 1");
+        var message = scenario.Get("a message value of 1");
         // Scenario.postMessage() pushes a message into the worker scripts' onmessage handler
         scenario.postMessage(message, callback);
         return true;
@@ -160,7 +160,7 @@ SCENARIO.Criteria = {
         return scenario.If("a message is sent back");
     },
     "the message value should equal 2" : function(scenario){
-        var message = scenario.The("a message is posted back");
+        var message = scenario.Get("a message is posted back");
         return message.data == 2;
     }
 }

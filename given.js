@@ -217,7 +217,7 @@ SCENARIO.Scenario.prototype = {
 	/** @description Return the result of this assertion */
 	/** @param {String} name */
 	/** @returns {Object} */
-	The : function The(name){
+	Get : function Get(name){
 		return this.getAssertion(name).result;
 	},
 	
