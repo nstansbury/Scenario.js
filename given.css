@@ -7,7 +7,7 @@ body > dl {
 	font-family: Monaco;
 }
 
-dd, dt {
+dd, dt, dl {
 	margin: 0px;
 }
 
