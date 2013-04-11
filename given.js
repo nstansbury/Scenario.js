@@ -244,10 +244,10 @@ SCENARIO.Scenario.prototype = {
 	AND : function(criteria){
 		// Check the last assertion type pushed onto the stack
 		var last = this.__assertions[ this.__assertions.length -1 ];
-		if(last.type != SCENARIO.AssertionType.When){
+		if(last.type == SCENARIO.AssertionType.Given){
 			this.GIVEN(criteria);
 		}
-		else if(last.type != SCENARIO.AssertionType.Then){
+		else if(last.type == SCENARIO.AssertionType.When){
 			this.WHEN(criteria);
 		}
 		else {
