@@ -63,7 +63,7 @@ SCENARIO.end = function end(scenario){
 		timeout = null;
 		SCENARIO.Reporter.write(scenario);
 		SCENARIO.isIdling = false;
-		SCENARIO.end(SCENARIO.__scenarios.pop());
+		SCENARIO.end(SCENARIO.__scenarios.shift());
 	}
 	
 	var assertion = null;
