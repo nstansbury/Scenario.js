@@ -431,6 +431,7 @@ SCENARIO.Iterator = function Iterator(array){
     this.__index = 0;
 }
 SCENARIO.Iterator.prototype = {
+	isEmpty: function(){ return (this.__array.length == 0) ? true : false; },
 	/** @returns {Boolean} */
     hasMore: function() { return this.__index < this.__array.length; },
 	/** @returns {Object} */
@@ -500,6 +501,7 @@ SCENARIO.HTMLReporter.prototype = {
 		criteria[ SCENARIO.AssertionType.Then ] = [];
 		
 		var assertions = scenario.getAssertions();
+		
 		while(assertions.hasMore()){
 			var assertion = assertions.getNext();
 			if(assertion.type == lastType){
@@ -543,17 +545,23 @@ SCENARIO.HTMLReporter.prototype = {
 			lastType = assertion.type;
 		}
 		
-		var params = {
-			givens : criteria[SCENARIO.AssertionType.Given].join(""),
-			whens : criteria[SCENARIO.AssertionType.When].join(""),
-			thens : criteria[SCENARIO.AssertionType.Then].join("")
+		if(assertions.isEmpty()){
+			result = false;
+			var criteriaList = "FAILED: No criteria specified";
 		}
-		var html = getHtmlResult(htmlCriteriaList, params);
+		else {
+			var params = {
+				givens : criteria[SCENARIO.AssertionType.Given].join(""),
+				whens : criteria[SCENARIO.AssertionType.When].join(""),
+				thens : criteria[SCENARIO.AssertionType.Then].join("")
+			}
+			var criteriaList = getHtmlResult(htmlCriteriaList, params);	
+		}
 		
 		params = {
 			title : scenario.title,
 			result : result ? "" : "data-failed",
-			criteriaList : html
+			criteriaList : criteriaList
 		}
 		
 		var dl = document.createElement("DL");

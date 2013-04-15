@@ -48,7 +48,11 @@ dt[data-failed] {
 	color : red;
 	font-weight: bold;		
 }
+
+/* Reason */
 dt[data-failed] + dd {
 	display: block;
 	margin-left: 10px;
+	font-family: Monaco;
+	color: #333333;
 }

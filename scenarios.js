@@ -85,3 +85,8 @@ SCENARIO("Check a playing and a play event occurs when an HTML5 video is played"
 			THEN("a play event is raised").
 				AND("a playing event is raised").
 END();
+
+
+
+SCENARIO("Demonstrate a scenario can be defined like a 'To-Do' with no criteria specified").
+END();
