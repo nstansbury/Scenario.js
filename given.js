@@ -348,21 +348,22 @@ SCENARIO.Assertion.prototype = {
 	
 	/** @returns {Void} */
 	run : function(){
+		var result;
 		try {
 			// Chrome & Firefox format stack traces differently
 			this.stack = new Error().stack.replace(/.*\(|.*@|Error\s|.*at\s|\)|\s,/gi, "").split("\n");
 			
 			// Assertion run in the scope of this Assertion object, and Scenario passed as an argument
 			if(this.__functor){
-				var result = this.__functor.call(this, this.__scenario);
+				result = this.__functor.call(this, this.__scenario);
 			}
 			else {
-				var result  = false;
+				result  = false;
 				this.error = "Assertion: '" +this.name +"' is not implemented";
 			}
 		}
 		catch(e){
-			var result  = false;
+			result  = false;
 			this.error = e;
 		}
 		finally{
