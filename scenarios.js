@@ -94,3 +94,7 @@ SCENARIO("Demonstrate that a scenario with no criteria implemented still correct
 				THEN("this").
 					AND("and that should occur").
 END();
+
+
+SCENARIO("Demonstrate a scenario can be defined like a 'To-Do' with no criteria specified").
+END();

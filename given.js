@@ -348,21 +348,22 @@ SCENARIO.Assertion.prototype = {
 	
 	/** @returns {Void} */
 	run : function(){
+		var result;
 		try {
 			// Chrome & Firefox format stack traces differently
 			this.stack = new Error().stack.replace(/.*\(|.*@|Error\s|.*at\s|\)|\s,/gi, "").split("\n");
 			
 			// Assertion run in the scope of this Assertion object, and Scenario passed as an argument
 			if(this.__functor){
-				var result = this.__functor.call(this, this.__scenario);
+				result = this.__functor.call(this, this.__scenario);
 			}
 			else {
-				var result  = false;
+				result  = false;
 				this.error = "Assertion: '" +this.name +"' is not implemented";
 			}
 		}
 		catch(e){
-			var result  = false;
+			result  = false;
 			this.error = e;
 		}
 		finally{
@@ -431,6 +432,7 @@ SCENARIO.Iterator = function Iterator(array){
     this.__index = 0;
 }
 SCENARIO.Iterator.prototype = {
+	isEmpty: function(){ return (this.__array.length == 0) ? true : false; },
 	/** @returns {Boolean} */
     hasMore: function() { return this.__index < this.__array.length; },
 	/** @returns {Object} */
@@ -500,6 +502,7 @@ SCENARIO.HTMLReporter.prototype = {
 		criteria[ SCENARIO.AssertionType.Then ] = [];
 		
 		var assertions = scenario.getAssertions();
+		
 		while(assertions.hasMore()){
 			var assertion = assertions.getNext();
 			if(assertion.type == lastType){
@@ -543,17 +546,23 @@ SCENARIO.HTMLReporter.prototype = {
 			lastType = assertion.type;
 		}
 		
-		var params = {
-			givens : criteria[SCENARIO.AssertionType.Given].join(""),
-			whens : criteria[SCENARIO.AssertionType.When].join(""),
-			thens : criteria[SCENARIO.AssertionType.Then].join("")
+		if(assertions.isEmpty()){
+			result = false;
+			var criteriaList = "FAILED: No criteria specified";
 		}
-		var html = getHtmlResult(htmlCriteriaList, params);
+		else {
+			var params = {
+				givens : criteria[SCENARIO.AssertionType.Given].join(""),
+				whens : criteria[SCENARIO.AssertionType.When].join(""),
+				thens : criteria[SCENARIO.AssertionType.Then].join("")
+			}
+			var criteriaList = getHtmlResult(htmlCriteriaList, params);	
+		}
 		
 		params = {
 			title : scenario.title,
 			result : result ? "" : "data-failed",
-			criteriaList : html
+			criteriaList : criteriaList
 		}
 		
 		var dl = document.createElement("DL");

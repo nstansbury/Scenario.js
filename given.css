@@ -13,7 +13,7 @@ dd, dt, dl {
 
 /* Criteria */
 dd > dl {
-	font-family: "Courier New";
+	font-family: monospace;
 	margin: 5px;
 }
 
@@ -34,7 +34,7 @@ dd > dl:nth-of-type(3) {
 
 /* Title */
 dt {
-	font-size: 15px;
+	font-size: 14px;
 	color: green;
 }
 /* Result */
@@ -45,10 +45,13 @@ dt + dd {
 }
 
 dt[data-failed] {
-	color : red;
-	font-weight: bold;		
+	color : red;	
 }
+
+/* Reason */
 dt[data-failed] + dd {
 	display: block;
 	margin-left: 10px;
+	font-family: Monaco;
+	color: #333333;
 }
