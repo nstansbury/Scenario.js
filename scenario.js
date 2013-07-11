@@ -1,7 +1,7 @@
 "use strict";
 /** @description A Natural Language BDD testing framework */
 /** @author Neil Stansbury <neil@neilstansbury.com> */
-/** @version 0.1 */
+/** @version 1.0 */
 
 
 /** @param {String} title */
