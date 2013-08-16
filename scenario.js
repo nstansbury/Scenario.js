@@ -7,6 +7,11 @@
 /** @param {String} title */
 /** @static */
 function SCENARIO(title){
+	if(typeof SCENARIO.setup == "function" && SCENARIO.isReady){
+		console.log("Waiting for Scenario...");
+		SCENARIO.isReady = false;
+		SCENARIO.setup();
+	}
 	return new SCENARIO.Scenario(title, SCENARIO.Criteria);
 }
 
@@ -20,6 +25,21 @@ SCENARIO.defaultTimeout = 500;
 SCENARIO.isIdling = false;
 
 SCENARIO.__scenarios =[];
+
+/** @type Function */
+SCENARIO.setup = null;
+
+/** @type Function */
+SCENARIO.ready = function onready(){
+	SCENARIO.setup = null;
+	SCENARIO.isReady = true;
+	if(SCENARIO.__scenarios.length > 0){
+		SCENARIO.end(SCENARIO.__scenarios.shift());
+	}
+};
+
+/** @type Boolean */
+SCENARIO.isReady = true;
 
 /** @param {String|Array} scenarios */
 /** @returns {Void} */
@@ -52,7 +72,7 @@ SCENARIO.end = function end(scenario){
 	if(!scenario){
 		return;		// End of blocked scenarios
 	}
-	if(SCENARIO.isIdling){
+	if(SCENARIO.isReady == false || SCENARIO.isIdling == true){
 		// Push this scenario on to the stack until we're unblocked
 		SCENARIO.__scenarios.push(scenario);
 		return;
