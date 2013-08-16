@@ -498,7 +498,21 @@ SCENARIO.Reporter = {
 }
 
 SCENARIO.HTMLReporter = function HTMLReporter(){
+    var scripts = document.getElementsByTagName("script");
+    for(var i = 0; i < scripts.length; i++)	{
+      if(scripts[ i ].src.indexOf("scenario.js") != -1)	{
+        var fileparts = scripts[ i ].src.split("/");
+        break;
+      }
+    }
+	fileparts.pop();
 	
+	var head = document.getElementsByTagName("HEAD")[0];
+	var link = document.createElement("LINK");
+	link.rel = "stylesheet";
+	link.type = "text/css";
+	link.href = fileparts.join("/") +"/" +"scenario.css";
+	head.appendChild(link);
 }
 SCENARIO.HTMLReporter.prototype = {
 	__proto__ : SCENARIO.Reporter,

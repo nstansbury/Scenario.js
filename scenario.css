@@ -5,6 +5,7 @@ body {
 body > dl {
 	padding: 5px;
 	font-family: Monaco;
+	border-bottom: 1px solid #999999;
 }
 
 dd, dt, dl {
