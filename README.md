@@ -128,9 +128,10 @@ SCENARIO.Criteria = {
 }
 ```
 
-Scenario Setup
 
-Scenarios can be setup asynchronously before execution, just defined SCENARIO.setup() before calling the scenarios, call SCENARIO.ready() when you are done.
+_Scenario Setup_
+
+Scenarios can be setup asynchronously before execution, just define SCENARIO.setup() before calling the scenarios, call SCENARIO.ready() when you are done.
 ```javascript
 SCENARIO.setup = function(){
 	function onready(){
@@ -139,12 +140,13 @@ SCENARIO.setup = function(){
 	// Do something asynchronously to setup the scenarios
 	// Load external files, whatever..
 	// Call SCENARIO.ready() when you are..
+	setTimeout(onready, 2000);
 }
 
 ```
 
 
-Testing Web Workers
+_Testing Web Workers_
 
 Web worker scripts can be tested in isolation by testing each script file independently. Message posting functionality can be mocked directly in the scenario.
 
