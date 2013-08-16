@@ -167,7 +167,7 @@ SCENARIO.Criteria = {
     "it is posted in" : function(scenario){
         function callback(message){
             // This callback is executed by the worker script calling postMessage()
-            scenario.Assert("a message is sent back", message);
+            scenario.Assert("a message is posted back", message);
         }
         var message = scenario.Get("a message value of 1");
         // Scenario.postMessage() pushes a message into the worker scripts' onmessage handler
