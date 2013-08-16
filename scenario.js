@@ -387,7 +387,9 @@ SCENARIO.Assertion.prototype = {
 			this.error = e;
 		}
 		finally{
-			this.result = result;
+			if(Boolean(this.result) == false){	// If the result is truthy already, the result has been asserted directly
+				this.result = result;
+			}
 			if(this.error){
 				console.warn(this.error);
 			}
