@@ -371,7 +371,7 @@ SCENARIO.Assertion.prototype = {
 		var result;
 		try {
 			// Chrome & Firefox format stack traces differently
-			this.stack = new Error().stack.replace(/.*\(|.*@|Error\s|.*at\s|\)|\s,/gi, "").split("\n");
+			this.stack = new Error().stack.match(/\(.+?\)|@.+?\n/gi);
 			
 			// Assertion run in the scope of this Assertion object, and Scenario passed as an argument
 			if(this.__functor){
@@ -383,15 +383,14 @@ SCENARIO.Assertion.prototype = {
 			}
 		}
 		catch(e){
+			this.stack = e.stack.match(/\(.+?\)|@.+?\n/gi);
+			this.stack.push(this.stack.shift());			// Shift the actual error line to front for assert result
 			result  = false;
 			this.error = e;
 		}
 		finally{
 			if(Boolean(this.result) == false){	// If the result is truthy already, the result has been asserted directly
 				this.result = result;
-			}
-			if(this.error){
-				console.warn(this.error);
 			}
 		}
 	},
