@@ -129,9 +129,9 @@ SCENARIO.Criteria = {
 ```
 
 
-_Scenario Setup_
+**Scenario Setup**
 
-Scenarios can be setup asynchronously before execution, just define SCENARIO.setup() before calling the scenarios, call SCENARIO.ready() when you are done.
+Scenarios can be setup asynchronously before execution, just define SCENARIO.setup before calling the scenarios, call SCENARIO.ready() when you are done.
 ```javascript
 SCENARIO.setup = function(){
 	function onready(){
@@ -146,7 +146,7 @@ SCENARIO.setup = function(){
 ```
 
 
-_Testing Web Workers_
+**Testing Web Workers**
 
 Web worker scripts can be tested in isolation by testing each script file independently. Message posting functionality can be mocked directly in the scenario.
 
@@ -167,7 +167,7 @@ SCENARIO.Criteria = {
     "it is posted in" : function(scenario){
         function callback(message){
             // This callback is executed by the worker script calling postMessage()
-            scenario.Assert("a message is sent back", message);
+            scenario.Assert("a message is posted back", message);
         }
         var message = scenario.Get("a message value of 1");
         // Scenario.postMessage() pushes a message into the worker scripts' onmessage handler
