@@ -383,8 +383,11 @@ SCENARIO.Assertion.prototype = {
 			}
 		}
 		catch(e){
-			this.stack = e.stack.match(/\(.+?\)|@.+?\n/gi);
-			this.stack.push(this.stack.shift());			// Shift the actual error line to front for assert result
+			if(e.stack){
+				this.stack = e.stack.match(/\(.+?\)|@.+?\n/gi);
+				this.stack.push(this.stack.shift());			// Shift the actual error line to front for assert result
+			}
+			
 			result  = false;
 			this.error = e;
 		}
