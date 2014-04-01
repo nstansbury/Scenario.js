@@ -151,11 +151,11 @@ SCENARIO.setup = function(){
 Web worker scripts can be tested in isolation by testing each script file independently. Message posting functionality can be mocked directly in the scenario.
 
 ```javascript
-SCENARIO("Ensure a web worker posts the correct message data back").
+SCENARIO("Ensure a web worker sends the correct message value back").
     GIVEN("a message value of 1").
         WHEN("it is posted in").
             AND("a message is sent back")
-                THEN("the message value should equal 2").
+                THEN("the message value should now equal 2").
 END();
 
 SCENARIO.Criteria = {
@@ -167,7 +167,7 @@ SCENARIO.Criteria = {
     "it is posted in" : function(scenario){
         function callback(message){
             // This callback is executed by the worker script calling postMessage()
-            scenario.Assert("a message is posted back", message);
+            scenario.Assert("a message is sent back", message);
         }
         var message = scenario.Get("a message value of 1");
         // Scenario.postMessage() pushes a message into the worker scripts' onmessage handler
@@ -177,9 +177,9 @@ SCENARIO.Criteria = {
     "a message is sent back" : function(scenario){
         return scenario.If("a message is sent back");
     },
-    "the message value should equal 2" : function(scenario){
-        var message = scenario.Get("a message is posted back");
-        return message.data == 2;
+    "the message value should now equal 2" : function(scenario){
+        var message = scenario.Get("a message is sent back");
+        return (message.value == 2) ? true : false;
     }
 }
 ```
